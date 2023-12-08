@@ -25,172 +25,29 @@
   </parent>
   <artifactId>tez-ui</artifactId>
   <packaging>war</packaging>
-
+  
   <properties>
     <webappDir>src/main/webapp</webappDir>
-
-    <nodeVersion>v5.12.0</nodeVersion>
-    <nodeExecutable>${basedir}/src/main/webapp/node/node</nodeExecutable>
-
-    <packageManagerScript>node/yarn/dist/bin/yarn.js</packageManagerScript>
-
     <skipTests>false</skipTests>
-  </properties>
-
-  <profiles>
-    <!-- Clear temporary directories -->
-    <profile>
-      <id>cleanUICache</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-clean-plugin</artifactId>
-            <configuration>
-              <filesets>
-                <fileset>
-                  <directory>${webappDir}/dist</directory>
-                </fileset>
-                <fileset>
-                  <directory>${webappDir}/tmp</directory>
-                </fileset>
-                <fileset>
-                  <directory>${webappDir}/node</directory>
-                </fileset>
-                <fileset>
-                  <directory>${webappDir}/node_modules</directory>
-                </fileset>
-                <fileset>
-                  <directory>${webappDir}/bower_components</directory>
-                </fileset>
-              </filesets>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
+  </properties> 
   <build>
     <plugins>
-
-      <!-- Apache RAT check -->
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>src/main/webapp/node/**/*</exclude>
-            <exclude>src/main/webapp/node_modules/**/*</exclude>
-            <exclude>src/main/webapp/bower_components/**/*</exclude>
-            <exclude>src/main/webapp/.tmp/**/*</exclude>
-            <exclude>src/main/webapp/dist/**/*</exclude>
-            <exclude>src/main/webapp/tmp/**/*</exclude>
-            <exclude>src/main/webapp/.bowerrc</exclude>
-            <exclude>src/main/webapp/.editorconfig</exclude>
-            <exclude>src/main/webapp/.ember-cli</exclude>
-            <exclude>src/main/webapp/.gitignore</exclude>
-            <exclude>src/main/webapp/.jshintrc</exclude>
-            <exclude>src/main/webapp/tests/.jshintrc</exclude>
-            <exclude>src/main/webapp/blueprints/.jshintrc</exclude>
-            <exclude>src/main/webapp/.watchmanconfig</exclude>
-            <exclude>src/main/webapp/bower.json</exclude>
-            <exclude>src/main/webapp/bower-shrinkwrap.json</exclude>
-            <exclude>src/main/webapp/ember-cli-build.js</exclude>
-            <exclude>src/main/webapp/package.json</exclude>
-            <exclude>src/main/webapp/yarn.lock</exclude>
-            <exclude>src/main/webapp/testem.json</exclude>
-            <exclude>src/main/webapp/public/assets/images/*</exclude>
-            <exclude>src/main/webapp/WEB-INF/wro.xml</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
-      <!-- Install Node, Yarn, Bower & dependencies -->
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <configuration>
-          <workingDirectory>${webappDir}</workingDirectory>
-        </configuration>
-        <executions>
-
-          <!-- Install all dependencies -->
-          <execution>
-            <phase>generate-resources</phase>
-            <id>install node and yarn</id>
-            <goals>
-              <goal>install-node-and-yarn</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${nodeVersion}</nodeVersion>
-              <yarnVersion>v0.21.3</yarnVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <phase>generate-resources</phase>
-            <id>yarn install</id>
-            <goals>
-              <goal>yarn</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <phase>generate-resources</phase>
-            <id>bower install</id>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-            <goals>
-              <goal>bower</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
+	    
+     <plugin>
         <artifactId>exec-maven-plugin</artifactId>
         <groupId>org.codehaus.mojo</groupId>
         <executions>
-
-          <!-- Build -->
-          <execution>
-            <id>ember build</id>
+	  <execution>
+            <id>build</id>
             <phase>generate-resources</phase>
             <goals>
               <goal>exec</goal>
             </goals>
             <configuration>
-              <workingDirectory>${webappDir}</workingDirectory>
-              <executable>${nodeExecutable}</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+	      <executable>make</executable>
               <arguments>
-                <argument>${packageManagerScript}</argument>
-                <argument>run</argument>
-                <argument>build:mvn</argument>
-              </arguments>
-            </configuration>
-          </execution>
-
-          <!-- Test if enabled-->
-          <execution>
-            <id>ember test</id>
-            <phase>test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <skip>${skipTests}</skip>
-              <workingDirectory>${webappDir}</workingDirectory>
-              <executable>${nodeExecutable}</executable>
-              <arguments>
-                <argument>${packageManagerScript}</argument>
-                <argument>run</argument>
-                <argument>test:mvn</argument>
+                <argument>unpack</argument>
               </arguments>
             </configuration>
           </execution>
@@ -201,6 +58,13 @@
       <plugin>
         <groupId>ro.isdc.wro4j</groupId>
         <artifactId>wro4j-maven-plugin</artifactId>
+        <dependencies>
+            <dependency>
+                 <groupId>org.mockito</groupId>
+                 <artifactId>mockito-core</artifactId>
+                 <version>2.18.0</version>
+            </dependency>
+        </dependencies>
         <executions>
           <execution>
             <phase>prepare-package</phase>
@@ -242,7 +106,7 @@
           </webResources>
         </configuration>
       </plugin>
-
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -252,4 +116,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
